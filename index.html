@@ -369,5 +369,38 @@
       informar("Câmera fechada.");
     });
   </script>
+  
+<script>
+function testarPontePortaria() {
+  const origem = "https://script.google.com";
+  const url = "https://script.google.com/macros/s/AKfycbwgrgoj7ja7Zq_pEYLtp4E6ZiTUPeNbvbcNpotSWliTZUMm34tgHMS3YdiD1aDLTfQG/exec?pagina=ponte";
+
+  const janela = document.createElement("iframe");
+  janela.src = url;
+  janela.style.display = "none";
+  document.body.appendChild(janela);
+
+  window.addEventListener("message", function(evento) {
+    if (evento.data?.tipo === "RESPOSTA_TESTE_PORTARIA") {
+      alert("Comunicação funcionando!");
+    }
+    if (evento.data?.tipo === "ERRO_TESTE_PORTARIA") {
+      alert("Erro: " + evento.data.mensagem);
+    }
+  });
+
+  janela.onload = function() {
+    janela.contentWindow.postMessage(
+      { acao: "TESTAR_COMUNICACAO" },
+      origem
+    );
+  };
+}
+</script>
+
+<button type="button" onclick="testarPontePortaria()">
+  TESTAR CONEXÃO COM A PLANILHA
+</button>
+
 </body>
 </html>
