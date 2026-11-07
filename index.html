@@ -1,0 +1,237 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Leitor de Ingressos - Musical 2026</title>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f6f3ed;
+      color: #30242b;
+    }
+
+    header {
+      background: #321629;
+      color: #f5d18a;
+      padding: 28px 15px;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0 0 10px;
+      font-size: 25px;
+    }
+
+    main {
+      max-width: 540px;
+      margin: 20px auto;
+      padding: 0 14px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 14px;
+      padding: 22px;
+      box-shadow: 0 2px 12px #00000012;
+    }
+
+    button {
+      width: 100%;
+      padding: 16px;
+      margin-top: 14px;
+      border: 0;
+      border-radius: 9px;
+      background: #812344;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+    }
+
+    #fechar {
+      display: none;
+      background: #65565d;
+    }
+
+    #leitor {
+      width: 100%;
+      margin-top: 18px;
+      overflow: hidden;
+      border-radius: 10px;
+    }
+
+    #mensagem {
+      padding: 14px;
+      margin-top: 15px;
+      background: #f3edf0;
+      border-radius: 9px;
+      font-size: 14px;
+      overflow-wrap: anywhere;
+    }
+
+    #resultado {
+      display: none;
+      margin-top: 16px;
+      padding: 18px;
+      border-radius: 10px;
+      background: #e3f5e8;
+      color: #155b31;
+      text-align: center;
+    }
+
+    #codigo {
+      font-size: 13px;
+      overflow-wrap: anywhere;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>🎟️ Controle de Entrada</h1>
+    <p>Colégio Saberes da Vitória</p>
+    <p>Uma Aventura no Túnel do Tempo</p>
+  </header>
+
+  <main>
+    <div class="card">
+      <h2>Leitor de QR Code</h2>
+
+      <p>
+        Abra a câmera para realizar o teste de leitura.
+      </p>
+
+      <button id="abrir" type="button">
+        📷 Abrir câmera
+      </button>
+
+      <button id="fechar" type="button">
+        Fechar câmera
+      </button>
+
+      <div id="leitor"></div>
+
+      <p id="mensagem">
+        Sistema carregado. Aguardando teste da câmera.
+      </p>
+
+      <div id="resultado">
+        <h2>QR Code identificado!</h2>
+        <p id="codigo"></p>
+        <p>
+          Leitura de teste concluída.
+          Nenhuma entrada foi registrada.
+        </p>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+  <script>
+    let scanner = null;
+    let ativo = false;
+    let iniciando = false;
+
+    const abrir = document.getElementById("abrir");
+    const fechar = document.getElementById("fechar");
+    const mensagem = document.getElementById("mensagem");
+    const resultado = document.getElementById("resultado");
+
+    function informar(texto) {
+      mensagem.textContent = texto;
+    }
+
+    async function encerrar() {
+      if (!scanner) return;
+
+      const atual = scanner;
+      scanner = null;
+      ativo = false;
+
+      try {
+        await atual.stop();
+      } catch (erro) {}
+
+      try {
+        atual.clear();
+      } catch (erro) {}
+
+      fechar.style.display = "none";
+      abrir.disabled = false;
+    }
+
+    abrir.addEventListener("click", async function() {
+      if (ativo || iniciando) return;
+
+      if (typeof Html5Qrcode === "undefined") {
+        informar("Erro: biblioteca de QR Code não carregada.");
+        return;
+      }
+
+      iniciando = true;
+      abrir.disabled = true;
+      resultado.style.display = "none";
+
+      try {
+        informar("Solicitando permissão da câmera...");
+
+        scanner = new Html5Qrcode("leitor");
+
+        await scanner.start(
+          { facingMode: "environment" },
+          {
+            fps: 10,
+            qrbox: { width: 220, height: 220 }
+          },
+          async function(codigoLido) {
+            if (!ativo) return;
+
+            ativo = false;
+
+            document.getElementById("codigo").textContent =
+              codigoLido;
+
+            resultado.style.display = "block";
+
+            informar("QR Code lido com sucesso.");
+
+            await encerrar();
+          },
+          function() {}
+        );
+
+        ativo = true;
+        fechar.style.display = "block";
+        informar("Câmera aberta. Aponte para um QR Code.");
+
+      } catch (erro) {
+        informar(
+          "Erro ao abrir a câmera: " +
+          (erro.message || String(erro))
+        );
+
+        scanner = null;
+        abrir.disabled = false;
+      } finally {
+        iniciando = false;
+      }
+    });
+
+    fechar.addEventListener("click", async function() {
+      await encerrar();
+      informar("Câmera fechada.");
+    });
+  </script>
+</body>
+</html>
