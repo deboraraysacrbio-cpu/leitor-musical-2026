@@ -2,405 +2,435 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Portaria — Musical 2026 - Atualizado</title>
-
-  <style>
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f6f3ed;
-      color: #30242b;
-    }
-
-    header {
-      background: #321629;
-      color: #f5d18a;
-      padding: 28px 15px;
-      text-align: center;
-    }
-
-    header h1 {
-      margin: 0 0 10px;
-      font-size: 25px;
-    }
-
-    main {
-      max-width: 540px;
-      margin: 20px auto;
-      padding: 0 14px;
-    }
-
-    .card {
-      background: white;
-      border-radius: 14px;
-      padding: 22px;
-      box-shadow: 0 2px 12px #00000012;
-    }
-
-    input {
-      display: block;
-      width: 100%;
-      padding: 14px;
-      margin-top: 12px;
-      border: 1px solid #cbbfc4;
-      border-radius: 9px;
-      font-size: 16px;
-    }
-
-    button {
-      width: 100%;
-      padding: 16px;
-      margin-top: 14px;
-      border: 0;
-      border-radius: 9px;
-      background: #812344;
-      color: white;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    button:disabled {
-      opacity: 0.5;
-    }
-
-    #sair, #fechar {
-      background: #65565d;
-    }
-
-    #leitor {
-      width: 100%;
-      margin-top: 18px;
-      overflow: hidden;
-      border-radius: 10px;
-    }
-
-    .mensagem {
-      padding: 14px;
-      margin-top: 15px;
-      background: #f3edf0;
-      border-radius: 9px;
-      font-size: 14px;
-      overflow-wrap: anywhere;
-    }
-
-    #resultado {
-      display: none;
-      margin-top: 16px;
-      padding: 18px;
-      border-radius: 10px;
-      background: #e3f5e8;
-      color: #155b31;
-      text-align: center;
-    }
-
-    #codigo, #usuarioAtual {
-      font-size: 13px;
-      overflow-wrap: anywhere;
-    }
-
-    #painelLogin, #painelLeitor {
-      display: none;
-    }
-
-    [hidden] {
-      display: none !important;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Controle de Entrada | Musical 2026</title>
+<style>
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: #f6f3ed;
+  color: #30242b;
+  font-family: Arial, sans-serif;
+}
+header {
+  background: #321629;
+  color: #f5d18a;
+  text-align: center;
+  padding: 26px 15px;
+}
+header h1 { font-size: 25px; margin: 0 0 10px; }
+main { max-width: 540px; margin: auto; padding: 20px 14px; }
+.card {
+  background: white;
+  border-radius: 15px;
+  padding: 22px;
+  margin-bottom: 18px;
+  box-shadow: 0 2px 12px #0001;
+}
+input, button {
+  width: 100%;
+  font-size: 16px;
+  border-radius: 9px;
+  padding: 14px;
+  margin: 8px 0;
+}
+input { border: 1px solid #ccc; }
+button {
+  background: #812344;
+  color: white;
+  border: 0;
+  font-weight: bold;
+  cursor: pointer;
+}
+button:disabled { opacity: .55; }
+.secondary { background: #62535d; }
+.message {
+  padding: 14px;
+  background: #f3edf0;
+  border-radius: 9px;
+  overflow-wrap: anywhere;
+  line-height: 1.5;
+  margin-top: 12px;
+}
+.result {
+  padding: 20px;
+  border-radius: 12px;
+  text-align: center;
+  margin-top: 14px;
+  font-size: 18px;
+  font-weight: bold;
+  overflow-wrap: anywhere;
+}
+.ok {
+  background: #e3f5e8;
+  color: #155b31;
+  border: 2px solid #299653;
+}
+.bad {
+  background: #fce6e6;
+  color: #9b2020;
+  border: 2px solid #c73535;
+}
+.warn {
+  background: #fff0d9;
+  color: #80500d;
+  border: 2px solid #d6a247;
+}
+#reader { width: 100%; margin-top: 14px; }
+small { color: #65565d; }
+[hidden] { display: none !important; }
+</style>
 </head>
-
 <body>
-  <header>
-    <h1>🎟️ Controle de Entrada</h1>
-    <p>Colégio Saberes da Vitória</p>
-    <p>Uma Aventura no Túnel do Tempo</p>
-  </header>
 
-  <main>
-    <section class="card" id="carregando">
-      <p>Verificando acesso...</p>
-    </section>
+<header>
+  <h1>🎟️ Controle de Entrada</h1>
+  <p>Colégio Saberes da Vitória</p>
+  <p>Uma Aventura no Túnel do Tempo</p>
+</header>
 
-    <section class="card" id="painelLogin">
-      <h2>🔐 Login da Portaria</h2>
-      <p>Entre com o e-mail e a senha do funcionário.</p>
+<main>
+  <section id="loginBox" class="card">
+    <h2>🔐 Login da Portaria</h2>
+    <p>Entre com o e-mail e a senha do funcionário.</p>
+    <input id="email" type="email"
+      placeholder="E-mail" autocomplete="username">
+    <input id="password" type="password"
+      placeholder="Senha" autocomplete="current-password">
+    <button id="loginBtn">Entrar no sistema</button>
+    <div id="loginMsg" class="message">Aguardando login.</div>
+  </section>
 
-      <form id="formLogin">
-        <input
-          id="email"
-          type="email"
-          placeholder="E-mail"
-          autocomplete="username"
-          required
-        >
+  <section id="scannerBox" class="card" hidden>
+    <h2>📷 Leitor de QR Code</h2>
+    <p id="employee"></p>
+    <button id="logoutBtn" class="secondary">Sair da conta</button>
+    <button id="cameraBtn">📷 Abrir câmera</button>
+    <button id="stopBtn" class="secondary" hidden>
+      Fechar câmera
+    </button>
+    <div id="reader"></div>
 
-        <input
-          id="senha"
-          type="password"
-          placeholder="Senha"
-          autocomplete="current-password"
-          required
-        >
+    <p><small>Também é possível digitar um código.</small></p>
+    <input id="ticket" placeholder="Código UUID do ingresso"
+      autocomplete="off">
+    <button id="validateBtn">Validar e registrar entrada</button>
+    <div id="status" class="message">Aguardando leitura.</div>
+    <div id="result" hidden></div>
+  </section>
+</main>
 
-        <button id="entrar" type="submit">
-          Entrar no sistema
-        </button>
-      </form>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 
-      <p class="mensagem" id="mensagemLogin">
-        Aguardando login.
-      </p>
-    </section>
+<script>
+"use strict";
 
-    <section class="card" id="painelLeitor">
-      <h2>📷 Leitor de QR Code</h2>
+const SCRIPT_URL =
+  "https://script.google.com/macros/s/AKfycbwgrgoj7ja7Zq_pEYLtp4E6ZiTUPeNbvbcNpotSWliTZUMm34tgHMS3YdiD1aDLTfQG/exec";
 
-      <p id="usuarioAtual"></p>
+const firebaseConfig = {
+  apiKey: "AIzaSyCAzxXD8uXhWnrNi3NLW8FndLxEUZXlJXU",
+  authDomain: "musical-saberes-2026.firebaseapp.com",
+  projectId: "musical-saberes-2026",
+  storageBucket: "musical-saberes-2026.firebasestorage.app",
+  messagingSenderId: "430981991575",
+  appId: "1:430981991575:web:173e7b30c9ac2912a2edd2"
+};
 
-      <button id="sair" type="button">
-        Sair da conta
-      </button>
+const $ = id => document.getElementById(id);
 
-      <p>Abra a câmera para testar a leitura do ingresso.</p>
+let scanner = null;
+let busy = false;
+let pending = null;
+let timeoutId = null;
 
-      <button id="abrir" type="button">
-        📷 Abrir câmera
-      </button>
+function status(text) {
+  $("status").textContent = text;
+}
 
-      <button id="fechar" type="button" hidden>
-        Fechar câmera
-      </button>
+function showResult(result) {
+  const el = $("result");
+  el.hidden = false;
+  el.className = "result " + (
+    result.situacao === "AUTORIZADO" ? "ok" :
+    result.situacao === "UTILIZADO" ? "bad" : "warn"
+  );
 
-      <div id="leitor"></div>
+  el.textContent =
+    (result.mensagem || "Resultado") +
+    (result.responsavel
+      ? " | Responsável: " + result.responsavel
+      : "") +
+    (result.horario
+      ? " | " + result.horario
+      : "");
+}
 
-      <p class="mensagem" id="mensagem">
-        Aguardando abertura da câmera.
-      </p>
+function finish(result) {
+  clearTimeout(timeoutId);
+  pending = null;
+  busy = false;
 
-      <div id="resultado">
-        <h2>QR Code identificado!</h2>
-        <p id="codigo"></p>
-        <p>
-          Leitura de teste concluída.
-          Nenhuma entrada foi registrada.
-        </p>
-      </div>
-    </section>
-  </main>
+  $("validateBtn").disabled = false;
+  $("cameraBtn").disabled = false;
 
-  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  status(result.mensagem || "Resposta recebida.");
+  showResult(result);
+}
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+// Receber resposta do Apps Script.
+window.addEventListener("message", function(event) {
+  if (!pending || !event.data ||
+      event.data.tipo !== "RESULTADO_PORTARIA") {
+    return;
+  }
 
-    import {
-      getAuth,
-      signInWithEmailAndPassword,
-      onAuthStateChanged,
-      signOut
-    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+  if (event.data.identificador !== pending.id) {
+    return;
+  }
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyCAzxXD8uXhWnrNi3NLW8FndLxEUZXlJXU",
-      authDomain: "musical-saberes-2026.firebaseapp.com",
-      projectId: "musical-saberes-2026",
-      storageBucket: "musical-saberes-2026.firebasestorage.app",
-      messagingSenderId: "430981991575",
-      appId: "1:430981991575:web:173e7b30c9ac2912a2edd2"
-    };
+  if (
+    event.origin !== "https://script.google.com" &&
+    event.origin !== "https://script.googleusercontent.com" &&
+    !/^https:\/\/[a-z0-9.-]+\.googleusercontent\.com$/.test(
+      event.origin
+    )
+  ) {
+    return;
+  }
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-
-    const carregando = document.getElementById("carregando");
-    const painelLogin = document.getElementById("painelLogin");
-    const painelLeitor = document.getElementById("painelLeitor");
-    const formLogin = document.getElementById("formLogin");
-    const mensagemLogin = document.getElementById("mensagemLogin");
-    const entrar = document.getElementById("entrar");
-    const abrir = document.getElementById("abrir");
-    const fechar = document.getElementById("fechar");
-    const mensagem = document.getElementById("mensagem");
-    const resultado = document.getElementById("resultado");
-
-    let scanner = null;
-    let ativo = false;
-    let iniciando = false;
-
-    function informar(texto) {
-      mensagem.textContent = texto;
+  finish(
+    event.data.resultado || {
+      situacao: "ERRO",
+      mensagem: "Resposta vazia do servidor."
     }
+  );
+});
 
-    async function encerrar() {
-      const atual = scanner;
-      if (!atual) return;
+async function register(code) {
+  if (busy) return;
 
-      scanner = null;
-      ativo = false;
+  const user = firebase.auth().currentUser;
 
-      try {
-        await atual.stop();
-      } catch (erro) {}
+  if (!user) {
+    status("Entre novamente com seu e-mail e senha.");
+    return;
+  }
 
-      try {
-        atual.clear();
-      } catch (erro) {}
+  code = String(code || "").trim();
 
-      fechar.hidden = true;
-      abrir.disabled = false;
-    }
-
-    onAuthStateChanged(auth, async function(usuario) {
-      carregando.style.display = "none";
-
-      if (usuario) {
-        painelLogin.style.display = "none";
-        painelLeitor.style.display = "block";
-
-        document.getElementById("usuarioAtual").textContent =
-          "Funcionário conectado: " +
-          (usuario.email || "Conta autenticada");
-      } else {
-        await encerrar();
-
-        painelLeitor.style.display = "none";
-        painelLogin.style.display = "block";
-        resultado.style.display = "none";
-      }
+  if (
+    !/^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(code)
+  ) {
+    showResult({
+      situacao: "INVALIDO",
+      mensagem: "Código de ingresso inválido."
     });
+    return;
+  }
 
-    formLogin.addEventListener("submit", async function(evento) {
-      evento.preventDefault();
+  busy = true;
+  $("validateBtn").disabled = true;
+  $("cameraBtn").disabled = true;
+  $("result").hidden = true;
 
-      entrar.disabled = true;
-      mensagemLogin.textContent = "Verificando e-mail e senha...";
+  status("Validando ingresso na planilha...");
 
-      try {
-        const email = document.getElementById("email").value.trim();
-        const senha = document.getElementById("senha").value;
+  try {
+    await stopCamera();
 
-        await signInWithEmailAndPassword(auth, email, senha);
+    const token = await user.getIdToken();
 
-        document.getElementById("senha").value = "";
-        mensagemLogin.textContent = "Login realizado com sucesso.";
-      } catch (erro) {
-        mensagemLogin.textContent =
-          "Não foi possível entrar. Confira o e-mail e a senha.";
-      } finally {
-        entrar.disabled = false;
-      }
-    });
-
-    document.getElementById("sair").addEventListener(
-      "click",
-      async function() {
-        await encerrar();
-        await signOut(auth);
-      }
+    const id = (
+      crypto.randomUUID
+        ? crypto.randomUUID()
+        : String(Date.now()) + Math.random()
     );
 
-    abrir.addEventListener("click", async function() {
-      if (!auth.currentUser) {
-        informar("Faça login antes de utilizar o leitor.");
-        return;
-      }
+    pending = { id: id };
 
-      if (ativo || iniciando) return;
+    // Envio por formulário para um iframe oculto.
+    const frame = document.createElement("iframe");
+    frame.name = "post_" + id.replace(/[^a-zA-Z0-9]/g, "");
+    frame.style.display = "none";
+    document.body.appendChild(frame);
 
-      if (typeof Html5Qrcode === "undefined") {
-        informar("Erro: biblioteca de QR Code não carregada.");
-        return;
-      }
+    const form = document.createElement("form");
+    form.method = "POST";
+    form.action = SCRIPT_URL;
+    form.target = frame.name;
+    form.style.display = "none";
 
-      iniciando = true;
-      abrir.disabled = true;
-      resultado.style.display = "none";
+    const campos = {
+      acao: "registrarEntrada",
+      codigo: code,
+      idToken: token,
+      identificador: id
+    };
 
-      try {
-        informar("Solicitando permissão da câmera...");
-
-        scanner = new Html5Qrcode("leitor");
-
-        await scanner.start(
-          { facingMode: "environment" },
-          {
-            fps: 10,
-            qrbox: { width: 220, height: 220 }
-          },
-          async function(codigoLido) {
-            if (!ativo || !auth.currentUser) return;
-
-            ativo = false;
-
-            document.getElementById("codigo").textContent =
-              codigoLido;
-
-            resultado.style.display = "block";
-            informar("QR Code lido com sucesso.");
-
-            await encerrar();
-          },
-          function() {}
-        );
-
-        ativo = true;
-        fechar.hidden = false;
-
-        informar("Câmera aberta. Aponte para um QR Code.");
-      } catch (erro) {
-        informar(
-          "Erro ao abrir a câmera: " +
-          (erro.message || String(erro))
-        );
-
-        scanner = null;
-        abrir.disabled = false;
-      } finally {
-        iniciando = false;
-      }
-    });
-
-    fechar.addEventListener("click", async function() {
-      await encerrar();
-      informar("Câmera fechada.");
-    });
-  </script>
-  
-<script>
-function testarPontePortaria() {
-  const origem = "https://script.google.com";
-  const url = "https://script.google.com/macros/s/AKfycbwgrgoj7ja7Zq_pEYLtp4E6ZiTUPeNbvbcNpotSWliTZUMm34tgHMS3YdiD1aDLTfQG/exec?pagina=ponte";
-
-  const janela = document.createElement("iframe");
-  janela.src = url;
-  janela.style.display = "none";
-  document.body.appendChild(janela);
-
-  window.addEventListener("message", function(evento) {
-    if (evento.data?.tipo === "RESPOSTA_TESTE_PORTARIA") {
-      alert("Comunicação funcionando!");
+    for (const [name, value] of Object.entries(campos)) {
+      const input = document.createElement("input");
+      input.type = "hidden";
+      input.name = name;
+      input.value = value;
+      form.appendChild(input);
     }
-    if (evento.data?.tipo === "ERRO_TESTE_PORTARIA") {
-      alert("Erro: " + evento.data.mensagem);
+
+    document.body.appendChild(form);
+
+    timeoutId = setTimeout(function() {
+      if (pending && pending.id === id) {
+        finish({
+          situacao: "ERRO",
+          mensagem:
+            "Sem resposta do servidor. NÃO libere a entrada. " +
+            "Confira a planilha antes de tentar novamente."
+        });
+      }
+
+      form.remove();
+      frame.remove();
+    }, 18000);
+
+    form.submit();
+    form.remove();
+
+    const watcher = setInterval(function() {
+      if (!pending || pending.id !== id) {
+        clearInterval(watcher);
+        frame.remove();
+      }
+    }, 1000);
+
+  } catch (error) {
+    finish({
+      situacao: "ERRO",
+      mensagem: "Erro: " + error.message
+    });
+  }
+}
+
+async function stopCamera() {
+  if (scanner) {
+    const s = scanner;
+    scanner = null;
+
+    try {
+      await s.stop();
+    } catch (e) {}
+
+    try {
+      s.clear();
+    } catch (e) {}
+  }
+
+  $("stopBtn").hidden = true;
+}
+
+async function openCamera() {
+  if (busy || scanner) return;
+
+  try {
+    if (typeof Html5Qrcode === "undefined") {
+      throw new Error(
+        "Biblioteca de QR Code não carregou."
+      );
+    }
+
+    status("Solicitando acesso à câmera...");
+
+    scanner = new Html5Qrcode("reader");
+
+    await scanner.start(
+      { facingMode: "environment" },
+      {
+        fps: 10,
+        qrbox: {
+          width: 230,
+          height: 230
+        }
+      },
+      function(code) {
+        if (!busy) register(code);
+      },
+      function() {}
+    );
+
+    $("stopBtn").hidden = false;
+    status("Câmera aberta. Aponte para o QR Code.");
+
+  } catch (error) {
+    scanner = null;
+    status("Erro na câmera: " + error.message);
+  }
+}
+
+$("loginBtn").onclick = async function() {
+  try {
+    $("loginMsg").textContent = "Conectando...";
+
+    await firebase.auth().signInWithEmailAndPassword(
+      $("email").value.trim(),
+      $("password").value
+    );
+
+    $("password").value = "";
+
+  } catch (e) {
+    $("loginMsg").textContent =
+      "Falha no login: " + e.message;
+  }
+};
+
+$("logoutBtn").onclick = async function() {
+  await stopCamera();
+  await firebase.auth().signOut();
+};
+
+$("cameraBtn").onclick = openCamera;
+
+$("stopBtn").onclick = function() {
+  stopCamera().then(function() {
+    status("Câmera fechada.");
+  });
+};
+
+$("validateBtn").onclick = function() {
+  register($("ticket").value);
+};
+
+window.addEventListener("error", function(e) {
+  if ($("status")) {
+    status("Erro na página: " + e.message);
+  }
+});
+
+try {
+  firebase.initializeApp(firebaseConfig);
+
+  firebase.auth().onAuthStateChanged(function(user) {
+    $("loginBox").hidden = !!user;
+    $("scannerBox").hidden = !user;
+
+    if (user) {
+      $("employee").textContent =
+        "Funcionário conectado: " + user.email;
+
+      status("Login confirmado. Pronto para ler QR Code.");
+
+    } else {
+      stopCamera();
     }
   });
 
-  janela.onload = function() {
-    janela.contentWindow.postMessage(
-      { acao: "TESTAR_COMUNICACAO" },
-      origem
-    );
-  };
+} catch (e) {
+  $("loginMsg").textContent =
+    "Erro ao iniciar Firebase: " + e.message;
 }
 </script>
-
-<button type="button" onclick="testarPontePortaria()">
-  TESTAR CONEXÃO COM A PLANILHA
-</button>
-
 </body>
 </html>
+
