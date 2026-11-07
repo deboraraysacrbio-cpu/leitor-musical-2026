@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Leitor de Ingressos - Musical 2026</title>
+  <title>Portaria — Musical 2026</title>
 
   <style>
     * { box-sizing: border-box; }
@@ -41,6 +41,16 @@
       box-shadow: 0 2px 12px #00000012;
     }
 
+    input {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      margin-top: 12px;
+      border: 1px solid #cbbfc4;
+      border-radius: 9px;
+      font-size: 16px;
+    }
+
     button {
       width: 100%;
       padding: 16px;
@@ -58,8 +68,7 @@
       opacity: 0.5;
     }
 
-    #fechar {
-      display: none;
+    #sair, #fechar {
       background: #65565d;
     }
 
@@ -70,7 +79,7 @@
       border-radius: 10px;
     }
 
-    #mensagem {
+    .mensagem {
       padding: 14px;
       margin-top: 15px;
       background: #f3edf0;
@@ -89,9 +98,17 @@
       text-align: center;
     }
 
-    #codigo {
+    #codigo, #usuarioAtual {
       font-size: 13px;
       overflow-wrap: anywhere;
+    }
+
+    #painelLogin, #painelLeitor {
+      display: none;
+    }
+
+    [hidden] {
+      display: none !important;
     }
   </style>
 </head>
@@ -104,25 +121,64 @@
   </header>
 
   <main>
-    <div class="card">
-      <h2>Leitor de QR Code</h2>
+    <section class="card" id="carregando">
+      <p>Verificando acesso...</p>
+    </section>
 
-      <p>
-        Abra a câmera para realizar o teste de leitura.
+    <section class="card" id="painelLogin">
+      <h2>🔐 Login da Portaria</h2>
+      <p>Entre com o e-mail e a senha do funcionário.</p>
+
+      <form id="formLogin">
+        <input
+          id="email"
+          type="email"
+          placeholder="E-mail"
+          autocomplete="username"
+          required
+        >
+
+        <input
+          id="senha"
+          type="password"
+          placeholder="Senha"
+          autocomplete="current-password"
+          required
+        >
+
+        <button id="entrar" type="submit">
+          Entrar no sistema
+        </button>
+      </form>
+
+      <p class="mensagem" id="mensagemLogin">
+        Aguardando login.
       </p>
+    </section>
+
+    <section class="card" id="painelLeitor">
+      <h2>📷 Leitor de QR Code</h2>
+
+      <p id="usuarioAtual"></p>
+
+      <button id="sair" type="button">
+        Sair da conta
+      </button>
+
+      <p>Abra a câmera para testar a leitura do ingresso.</p>
 
       <button id="abrir" type="button">
         📷 Abrir câmera
       </button>
 
-      <button id="fechar" type="button">
+      <button id="fechar" type="button" hidden>
         Fechar câmera
       </button>
 
       <div id="leitor"></div>
 
-      <p id="mensagem">
-        Sistema carregado. Aguardando teste da câmera.
+      <p class="mensagem" id="mensagem">
+        Aguardando abertura da câmera.
       </p>
 
       <div id="resultado">
@@ -133,29 +189,56 @@
           Nenhuma entrada foi registrada.
         </p>
       </div>
-    </div>
+    </section>
   </main>
 
   <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 
-  <script>
-    let scanner = null;
-    let ativo = false;
-    let iniciando = false;
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 
+    import {
+      getAuth,
+      signInWithEmailAndPassword,
+      onAuthStateChanged,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCAzxXD8uXhWnrNi3NLW8FndLxEUZXlJXU",
+      authDomain: "musical-saberes-2026.firebaseapp.com",
+      projectId: "musical-saberes-2026",
+      storageBucket: "musical-saberes-2026.firebasestorage.app",
+      messagingSenderId: "430981991575",
+      appId: "1:430981991575:web:173e7b30c9ac2912a2edd2"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    const carregando = document.getElementById("carregando");
+    const painelLogin = document.getElementById("painelLogin");
+    const painelLeitor = document.getElementById("painelLeitor");
+    const formLogin = document.getElementById("formLogin");
+    const mensagemLogin = document.getElementById("mensagemLogin");
+    const entrar = document.getElementById("entrar");
     const abrir = document.getElementById("abrir");
     const fechar = document.getElementById("fechar");
     const mensagem = document.getElementById("mensagem");
     const resultado = document.getElementById("resultado");
+
+    let scanner = null;
+    let ativo = false;
+    let iniciando = false;
 
     function informar(texto) {
       mensagem.textContent = texto;
     }
 
     async function encerrar() {
-      if (!scanner) return;
-
       const atual = scanner;
+      if (!atual) return;
+
       scanner = null;
       ativo = false;
 
@@ -167,11 +250,65 @@
         atual.clear();
       } catch (erro) {}
 
-      fechar.style.display = "none";
+      fechar.hidden = true;
       abrir.disabled = false;
     }
 
+    onAuthStateChanged(auth, async function(usuario) {
+      carregando.style.display = "none";
+
+      if (usuario) {
+        painelLogin.style.display = "none";
+        painelLeitor.style.display = "block";
+
+        document.getElementById("usuarioAtual").textContent =
+          "Funcionário conectado: " +
+          (usuario.email || "Conta autenticada");
+      } else {
+        await encerrar();
+
+        painelLeitor.style.display = "none";
+        painelLogin.style.display = "block";
+        resultado.style.display = "none";
+      }
+    });
+
+    formLogin.addEventListener("submit", async function(evento) {
+      evento.preventDefault();
+
+      entrar.disabled = true;
+      mensagemLogin.textContent = "Verificando e-mail e senha...";
+
+      try {
+        const email = document.getElementById("email").value.trim();
+        const senha = document.getElementById("senha").value;
+
+        await signInWithEmailAndPassword(auth, email, senha);
+
+        document.getElementById("senha").value = "";
+        mensagemLogin.textContent = "Login realizado com sucesso.";
+      } catch (erro) {
+        mensagemLogin.textContent =
+          "Não foi possível entrar. Confira o e-mail e a senha.";
+      } finally {
+        entrar.disabled = false;
+      }
+    });
+
+    document.getElementById("sair").addEventListener(
+      "click",
+      async function() {
+        await encerrar();
+        await signOut(auth);
+      }
+    );
+
     abrir.addEventListener("click", async function() {
+      if (!auth.currentUser) {
+        informar("Faça login antes de utilizar o leitor.");
+        return;
+      }
+
       if (ativo || iniciando) return;
 
       if (typeof Html5Qrcode === "undefined") {
@@ -195,7 +332,7 @@
             qrbox: { width: 220, height: 220 }
           },
           async function(codigoLido) {
-            if (!ativo) return;
+            if (!ativo || !auth.currentUser) return;
 
             ativo = false;
 
@@ -203,7 +340,6 @@
               codigoLido;
 
             resultado.style.display = "block";
-
             informar("QR Code lido com sucesso.");
 
             await encerrar();
@@ -212,9 +348,9 @@
         );
 
         ativo = true;
-        fechar.style.display = "block";
-        informar("Câmera aberta. Aponte para um QR Code.");
+        fechar.hidden = false;
 
+        informar("Câmera aberta. Aponte para um QR Code.");
       } catch (erro) {
         informar(
           "Erro ao abrir a câmera: " +
